@@ -15,7 +15,8 @@ Tot je dit gedaan hebt, werkt het beheer niet (er is dan nog geen inlog) en blij
 3. **Regels plaatsen** — *Build* → *Realtime Database* → tabblad *Rules* → alles vervangen door de inhoud van `beheer/firebase-regels.json` → **Publish**.
    (Kijk eerst even in het tabblad *Data*: staan er naast `show` nog andere onderdelen, dan worden die door deze regels dichtgezet voor publiek. Dat is meestal precies wat je wilt.)
 4. **Eerste beheerder** — dit gaat niet meer via de site (dat was alleen voor de eerste keer). Heb je al een beheerder, dan ben je klaar. Anders: zie "Alle beheerders kwijt" onderaan.
-5. Onder **Beheerders** kun je tot 5 mensen toevoegen, je wachtwoord en je gebruikersnaam wijzigen.
+5. Onder **Accounts** (alleen zichtbaar voor beheerders) kun je maximaal **5 accounts** toevoegen, waarvan maximaal **2 beheerders**, en je eigen wachtwoord en gebruikersnaam wijzigen. Een gewoon account kan alle andere beheerpagina's gebruiken, maar de pagina Accounts is verborgen en de database weigert elke wijziging aan accounts.
+   **Bestaande accounts** zonder `rol` gelden als beheerder. Wil je er een gewoon account van maken: Realtime Database → Data → `beheerders` → uid → voeg `rol` = `medewerker` toe.
 
 ## Extra (aanbevolen, 2 minuten)
 Google Cloud console → *APIs & Services* → *Credentials* → je Browser key → *Application restrictions: Websites* → voeg je GitHub Pages-adres toe (bijv. `https://jouwnaam.github.io/*`). Dan werkt de sleutel alleen vanaf jouw site.
@@ -28,5 +29,5 @@ Google Cloud console → *APIs & Services* → *Credentials* → je Browser key 
 
 ## Alle beheerders kwijt (noodgeval)
 1. Firebase console → *Authentication* → *Users* → *Add user*: e-mail `jouwnaam@beheer.jelopenstage.nl`, kies een wachtwoord. Kopieer daarna de **User UID** van die gebruiker.
-2. *Realtime Database* → *Data* → ga op de root staan (de URL) → plus-icoon → naam = die UID → voeg daaronder een onderdeel `gebruikersnaam` toe met de waarde `jouwnaam`.
+2. *Realtime Database* → *Data* → ga op de root staan (de URL) → plus-icoon → naam = die UID → voeg daaronder `gebruikersnaam` = `jouwnaam` toe én `rol` = `admin`.
 3. Nu kun je gewoon inloggen met `jouwnaam` en je wachtwoord.

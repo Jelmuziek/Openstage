@@ -14,10 +14,11 @@
     },
 
     "beheerders": {
-      ".read": "auth != null && root.child('beheerders').child(auth.uid).exists()",
+      ".read": "auth != null && root.child('beheerders').child(auth.uid).exists() && (!root.child('beheerders').child(auth.uid).child('rol').exists() || root.child('beheerders').child(auth.uid).child('rol').val() === 'admin')",
       "$uid": {
-        ".write": "auth != null && root.child('beheerders').child(auth.uid).exists()",
-        ".validate": "newData.hasChildren(['gebruikersnaam']) && newData.child('gebruikersnaam').isString() && newData.child('gebruikersnaam').val().length <= 30"
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && root.child('beheerders').child(auth.uid).exists() && (!root.child('beheerders').child(auth.uid).child('rol').exists() || root.child('beheerders').child(auth.uid).child('rol').val() === 'admin')",
+        ".validate": "newData.hasChildren(['gebruikersnaam', 'rol']) && newData.child('gebruikersnaam').isString() && newData.child('gebruikersnaam').val().length <= 30 && (newData.child('rol').val() === 'admin' || newData.child('rol').val() === 'medewerker')"
       }
     }
   }

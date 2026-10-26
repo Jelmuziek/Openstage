@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Beheerders – Beheer JEL Openstage</title><link rel="stylesheet" href="beheer.css"><link rel="icon" href="../images/favicon_io/favicon-32x32.png"></head>
-<body><div class="wrap">
-<h1>Beheerders</h1><p class="sub">Wie mag inloggen op dit beheer. Er kunnen maximaal 5 mensen tegelijk beheerder zijn.</p>
+<body><div class="wrap" id="inhoud" style="display:none">
+<h1>Accounts</h1><p class="sub">Wie mag inloggen op dit beheer. Maximaal 5 accounts, waarvan maximaal 2 beheerders (mogen ook accounts beheren). Gewone accounts kunnen alle andere pagina's gebruiken, maar niet deze.</p>
 <div class="kaart"><h2>Wie mag erin</h2><div id="lijst"><p class="sub">Laden…</p></div></div>
-<div class="kaart"><h2>Beheerder toevoegen</h2>
+<div class="kaart"><h2>Account toevoegen</h2>
   <div class="rij"><div><label>Gebruikersnaam</label><input type="text" id="nNaam" autocomplete="off" autocapitalize="none" spellcheck="false"></div>
   <div><label>Wachtwoord</label><input type="password" id="nWw" autocomplete="new-password"></div></div>
+  <label>Soort account</label><select id="nRol" style="padding:9px 11px;border:1px solid var(--rand);border-radius:8px;font:inherit;width:100%"><option value="admin">Beheerder (mag ook accounts beheren)</option><option value="medewerker">Gewoon account (alleen de andere pagina's)</option></select>
   <p class="hint">Gebruikersnaam: 3–30 tekens (letters, cijfers, punt, streepje, underscore). Wachtwoord: minimaal 10 tekens. Geef het wachtwoord zelf door; de persoon kan het hierna zelf wijzigen.</p>
   <div class="knoppen" style="margin-top:10px"><button class="primair" id="voegToe">Toevoegen</button></div><p class="status" id="sToe"></p></div>
 <div class="kaart"><h2>Mijn wachtwoord wijzigen</h2>
@@ -25,12 +26,16 @@ bouwNav('beheerders.html');
 const $ = id => document.getElementById(id);
 const meld = (id, t, soort = '') => { $(id).textContent = t; $(id).className = 'status ' + soort; };
 let lijst = {};
+const rolNaam = r => r === 'medewerker' ? 'gewoon account' : 'beheerder';
 async function laad() {
+  await token();
+  if (!isAdmin()) { document.body.insertAdjacentHTML('beforeend', '<div class="wrap"><h1>Geen toegang</h1><p class="sub">Alleen beheerders kunnen accounts beheren.</p></div>'); return; }
+  $('inhoud').style.display = '';
   try { lijst = (await dbReq('beheerders', '', 'GET')) || {}; } catch { $('lijst').innerHTML = '<p class="status fout">Kon beheerders niet laden</p>'; return; }
   const ids = Object.keys(lijst);
   $('lijst').innerHTML = ids.map(id => `<div class="liverij ${id === sessie.uid ? 'speelt' : ''}">
     <div class="tit"><b>${esc(lijst[id].gebruikersnaam)} ${id === sessie.uid ? '<span class="hint">(jij)</span>' : ''}</b>
-    <span>${lijst[id].toegevoegd ? 'toegevoegd ' + new Date(lijst[id].toegevoegd).toLocaleDateString('nl-NL') : ''}${lijst[id].toegevoegdDoor ? ' door ' + esc(lijst[id].toegevoegdDoor) : ''}</span></div>
+    <span>${rolNaam(lijst[id].rol)}${lijst[id].toegevoegd ? ' · ' : ''}${lijst[id].toegevoegd ? 'toegevoegd ' + new Date(lijst[id].toegevoegd).toLocaleDateString('nl-NL') : ''}${lijst[id].toegevoegdDoor ? ' door ' + esc(lijst[id].toegevoegdDoor) : ''}</span></div>
     ${id === sessie.uid ? '' : `<button class="gevaar" data-id="${esc(id)}">Verwijderen</button>`}</div>`).join('');
 }
 $('lijst').addEventListener('click', async e => {
@@ -41,13 +46,15 @@ $('lijst').addEventListener('click', async e => {
 $('voegToe').onclick = async () => {
   const naam = $('nNaam').value.trim().toLowerCase(), ww = $('nWw').value; meld('sToe', '');
   try {
-    if (Object.keys(lijst).length >= MAX_BEHEERDERS) throw new Error(`Maximaal ${MAX_BEHEERDERS} beheerders. Verwijder eerst iemand.`);
+    const rol = $('nRol').value, aantalAdmins = Object.values(lijst).filter(x => (x.rol || 'admin') === 'admin').length;
+    if (Object.keys(lijst).length >= MAX_TOTAAL) throw new Error(`Maximaal ${MAX_TOTAAL} accounts. Verwijder eerst iemand.`);
+    if (rol === 'admin' && aantalAdmins >= MAX_ADMINS) throw new Error(`Maximaal ${MAX_ADMINS} beheerders. Kies "Gewoon account" of verwijder eerst een beheerder.`);
     if (!naamOk(naam)) throw new Error('Gebruikersnaam: 3–30 tekens, alleen letters, cijfers, punt, streepje of underscore.');
     if (ww.length < MIN_WW) throw new Error(`Wachtwoord moet minimaal ${MIN_WW} tekens zijn.`);
     if (Object.values(lijst).some(x => x.gebruikersnaam === naam)) throw new Error('Deze gebruikersnaam is al beheerder.');
     const j = await maakAccount(naam, ww);
-    await dbReq('beheerders', j.localId, 'PUT', {gebruikersnaam: naam, toegevoegdDoor: sessie.naam, toegevoegd: new Date().toISOString()});
-    $('nNaam').value = $('nWw').value = ''; meld('sToe', `✓ ${naam} kan nu inloggen`, 'ok'); laad();
+    await dbReq('beheerders', j.localId, 'PUT', {gebruikersnaam: naam, rol, toegevoegdDoor: sessie.naam, toegevoegd: new Date().toISOString()});
+    $('nNaam').value = $('nWw').value = ''; meld('sToe', `✓ ${naam} (${rolNaam(rol)}) kan nu inloggen`, 'ok'); laad();
   } catch (e) { meld('sToe', e.message, 'fout'); }
 };
 $('wijzigWw').onclick = async () => {
@@ -58,7 +65,7 @@ $('wijzigWw').onclick = async () => {
     if (nieuw !== $('wNieuw2').value) throw new Error('De nieuwe wachtwoorden zijn niet hetzelfde.');
     const j = await authCall('signInWithPassword', {email: mailVan(sessie.naam), password: $('wOud').value, returnSecureToken: true});
     const u = await authCall('update', {idToken: j.idToken, password: nieuw, returnSecureToken: true});
-    bewaar(sessieVan({...u, localId: j.localId}, sessie.naam));
+    bewaar(sessieVan({...u, localId: j.localId}, sessie.naam, sessie.rol));
     $('wOud').value = $('wNieuw').value = $('wNieuw2').value = ''; meld('sWw', '✓ Wachtwoord gewijzigd', 'ok');
   } catch (e) { meld('sWw', e.message, 'fout'); }
 };
@@ -71,8 +78,8 @@ $('wijzigNaam').onclick = async () => {
     if (Object.values(lijst).some(x => x.gebruikersnaam === naam)) throw new Error('Deze gebruikersnaam is al in gebruik.');
     await authCall('signInWithPassword', {email: mailVan(sessie.naam), password: ww, returnSecureToken: true}); // wachtwoord controleren
     const nieuw = await maakAccount(naam, ww);                               // nieuw account, zelfde wachtwoord
-    await dbReq('beheerders', nieuw.localId, 'PUT', {gebruikersnaam: naam, toegevoegd: new Date().toISOString(), toegevoegdDoor: sessie.naam});
-    bewaar(sessieVan(nieuw, naam));                                          // overschakelen
+    await dbReq('beheerders', nieuw.localId, 'PUT', {gebruikersnaam: naam, rol: sessie.rol, toegevoegd: new Date().toISOString(), toegevoegdDoor: sessie.naam});
+    bewaar(sessieVan(nieuw, naam, sessie.rol));                                          // overschakelen
     await dbReq('beheerders', oudUid, 'DELETE');                             // oude naam opruimen
     $('gNaam').value = $('gWw').value = ''; meld('sNaam', `✓ Je gebruikersnaam is nu ${naam}`, 'ok'); laad();
   } catch (e) { meld('sNaam', e.message, 'fout'); }

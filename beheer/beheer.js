@@ -6,7 +6,8 @@
 // Die sleutel is niet geheim; de beveiliging zit in de database-regels (zie BEVEILIGING.md).
 const API_KEY = 'AIzaSyBaLHdFB6O6KRsr5TmwtmNNEVmwpwVo0gY';
 const DB_ROOT = 'https://openstage-597a9-default-rtdb.europe-west1.firebasedatabase.app';
-const MAX_BEHEERDERS = 5;
+const MAX_TOTAAL = 5;        // totaal aantal accounts
+const MAX_ADMINS = 2;        // hiervan maximaal zoveel beheerders (mogen ook accounts beheren)
 const MIN_WW = 10;
 const MAIL_DOMEIN = 'beheer.jelopenstage.nl'; // gebruikersnaam wordt intern een nep-mailadres
 
@@ -37,8 +38,10 @@ async function authCall(ep, body) {
 }
 let sessie = null;
 try { sessie = JSON.parse(localStorage.getItem('jel_sessie') || 'null'); } catch {}
+if (sessie && !sessie.rol) sessie = null; // oude sessie zonder rol: opnieuw inloggen
+const isAdmin = () => !!sessie && sessie.rol === 'admin';
 function bewaar(s) { sessie = s; werkNavBij(); try { s ? localStorage.setItem('jel_sessie', JSON.stringify(s)) : localStorage.removeItem('jel_sessie'); } catch {} }
-const sessieVan = (j, naam) => ({idToken: j.idToken, refreshToken: j.refreshToken, uid: j.localId, naam, verloopt: Date.now() + (+j.expiresIn) * 1000});
+const sessieVan = (j, naam, rol) => ({idToken: j.idToken, refreshToken: j.refreshToken, uid: j.localId, naam, rol, verloopt: Date.now() + (+j.expiresIn) * 1000});
 async function ververs() {
   if (!sessie) return false;
   try {
@@ -57,6 +60,7 @@ function uitloggen() {
 function inloggen() { token().then(() => location.reload()); }
 function werkNavBij() {
   if (typeof document.getElementById !== 'function') return;
+  document.querySelectorAll('[data-admin]').forEach(el => { el.style.display = isAdmin() ? '' : 'none'; });
   const k = document.getElementById('navAuth'); if (!k) return;
   k.textContent = sessie ? 'Uitloggen' : 'Inloggen'; k.onclick = sessie ? uitloggen : inloggen;
 }
@@ -92,8 +96,9 @@ function toonInlog() {
         const naam = $('ilNaam').value.trim().toLowerCase(), ww = $('ilWw').value;
         const j = await authCall('signInWithPassword', {email: mailVan(naam), password: ww, returnSecureToken: true});
         const r = await fetch(`${DB_ROOT}/beheerders/${j.localId}.json?auth=${j.idToken}`);
-        if (!r.ok || !(await r.json())) throw new Error('Dit account heeft geen toegang tot het beheer.');
-        bewaar(sessieVan(j, naam));
+        const rec = r.ok ? await r.json() : null;
+        if (!rec) throw new Error('Dit account heeft geen toegang tot het beheer.');
+        bewaar(sessieVan(j, naam, rec.rol === 'medewerker' ? 'medewerker' : 'admin')); // oude accounts zonder rol = beheerder
         o.remove(); klaar();
       } catch (err) { fout.textContent = err.message; knop.disabled = false; }
     };
@@ -124,7 +129,7 @@ const dbPatch = (pad, obj) => dbReq('show', pad, 'PATCH', obj);
 const PAGINAS = [
   ['index.html','Overzicht'],['home.html','Home'],['setlist.html','Setlist'],['events.html','Events'],
   ['fotos.html',"Foto's"],['over-ons.html','Over ons'],['algemeen.html','Algemeen'],
-  ['nummers.html','Nummers & mensen'],['live.html','Live modus'],['beheerders.html','Beheerders']
+  ['nummers.html','Nummers & mensen'],['live.html','Live modus'],['beheerders.html','Accounts']
 ];
 const LINK_PAGINAS = [['index.html','Home'],['setlist.html','Setlist'],['events.html','Events'],["foto's.html","Foto's"],['over-ons.html','Over ons']];
 const linkNaam = h => (LINK_PAGINAS.find(p => p[0] === h) || [0, h])[1];
@@ -136,7 +141,7 @@ function bouwNav(huidig) {
   nav.innerHTML = '<span class="merk">JEL Openstage Beheer</span>' +
     '<button class="burger" id="burger" aria-label="Menu openen" aria-expanded="false">☰</button>' +
     '<div class="links">' +
-    PAGINAS.map(([h, l]) => `<a href="${h}" class="${h === huidig ? 'actief' : ''}${h === 'live.html' ? ' live' : ''}">${l}${h === 'live.html' ? ' ●' : ''}</a>`).join('') +
+    PAGINAS.map(([h, l]) => `<a href="${h}"${h === 'beheerders.html' ? ' data-admin style="display:none"' : ''} class="${h === huidig ? 'actief' : ''}${h === 'live.html' ? ' live' : ''}">${l}${h === 'live.html' ? ' ●' : ''}</a>`).join('') +
     '<button class="uit" id="navAuth"></button></div>';
   document.body.prepend(nav);
   const burger = nav.querySelector('#burger');
