@@ -274,9 +274,16 @@ laadEnStartCountdown();
         .then(r => r.json())
         .then(t => {
             if (!t || typeof t !== 'object') return;
+            const prefix = location.pathname.includes('/songs/') ? '../' : '';
             els.forEach(el => {
                 const v = t[el.dataset.t];
                 if (typeof v === 'string' && v.trim()) el.textContent = v;
+                // link van knoppen/menu-items (alleen eigen pagina's of http/mailto)
+                const l = t[el.dataset.t + '_link'];
+                if (el.tagName === 'A' && typeof l === 'string' && l.trim()) {
+                    if (/^(https?:|mailto:)/i.test(l)) el.href = l;
+                    else if (/^[\w'%.-]+\.html$/.test(l)) el.href = prefix + l;
+                }
             });
         })
         .catch(() => {});

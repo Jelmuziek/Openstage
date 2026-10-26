@@ -21,7 +21,7 @@ async function laadSong() {
         }
 
         // Paginatitel updaten
-        document.title = `${song.naam} – JEL Openstage 3`;
+        document.title = `${song.naam} – JEL Openstage`;
 
         // Naam
         document.getElementById('song-naam').textContent = song.naam;

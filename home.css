@@ -297,3 +297,6 @@ body:not(.home-body) footer {
     .quote-section { padding: 50px 24px; }
     .cta-bottom { padding: 60px 24px; }
 }
+
+.hero-line:empty { display: none; }
+.hero-line:empty{display:none}

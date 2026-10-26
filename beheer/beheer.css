@@ -48,3 +48,7 @@ button.gevaar{color:var(--rood)}
 .dashgrid a{display:block;background:#fff;border:1px solid var(--rand);border-radius:12px;padding:16px;text-decoration:none;color:inherit}
 .dashgrid a:hover{border-color:var(--paars);box-shadow:0 2px 10px rgba(129,1,98,.12)}
 .dashgrid b{display:block;margin-bottom:4px;color:var(--paars)}.dashgrid span{font-size:.85rem;color:#777}
+
+.linkrij{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.linkrij select{padding:6px 10px;border:1px solid var(--rand);border-radius:8px;font:inherit;font-size:.88rem;background:#fff}
+.linkrij input{flex:1;min-width:180px;width:auto;padding:6px 10px;font-size:.88rem}
