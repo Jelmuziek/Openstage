@@ -95,7 +95,10 @@ function toonInlog() {
           const j = await maakAccount(naam, ww);
           const r = await fetch(`${DB_ROOT}/beheerders/${j.localId}.json?auth=${j.idToken}`, {method: 'PUT',
             body: JSON.stringify({gebruikersnaam: naam, toegevoegd: new Date().toISOString()})});
-          if (!r.ok) throw new Error('Er bestaat al een beheerder. Vraag een bestaande beheerder om je toe te voegen.');
+          if (!r.ok) {
+            const tekst = (await r.text().catch(() => '')).slice(0, 120);
+            throw new Error(`Opslaan van de beheerder mislukt (status ${r.status}${tekst ? ': ' + tekst : ''}). Meestal betekent dit dat de database-regels nog niet gepubliceerd zijn, of dat er al een beheerder bestaat. Account "${naam}" is wel aangemaakt: probeer na het publiceren van de regels gewoon opnieuw met dezelfde gegevens.`);
+          }
           bewaar(sessieVan(j, naam));
         } else {
           const j = await authCall('signInWithPassword', {email: mailVan(naam), password: ww, returnSecureToken: true});
