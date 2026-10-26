@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon_io/site.webmanifest">
+    <title>Foto's – JEL Openstage 3</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <div class="scrollbar"></div>
+    <nav class="navbar">
+        <div class="brand">
+            <div class="nav-logo"><img src="images/logo.png" alt="Logo"></div>
+            <div class="logo" data-t="site_naam">JEL Openstage 3</div>
+        </div>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="navlinks" id="navlinks">
+            <a href="index.html" data-t="nav_home">Home</a>
+            <a href="setlist.html" data-t="nav_setlist">Setlist</a>
+            <a href="events.html" data-t="nav_events">Events</a>
+            <a href="foto's.html" data-t="nav_fotos">Foto's</a>
+            <a href="over-ons.html" data-t="nav_overons">Over ons</a>
+        </div>
+    </nav>
+
+    <div class="gallery-header">
+        <h1 data-t="fotos_titel">Foto's</h1>
+        <p data-t="fotos_intro">Hier zijn enkele foto's van de vorige editie van JEL Openstage!</p>
+    </div>
+
+    <section class="gallery">
+        <img src="images/Iris.jpeg" alt="Iris" onclick="openImage(this)">
+        <img src="images/Huub.jpeg" alt="Huub" onclick="openImage(this)">
+        <img src="images/achter de schermen.jpeg" class="tall" alt="Achter de schermen" onclick="openImage(this)">
+        <img src="images/Podium.jpeg" alt="Podium" onclick="openImage(this)">
+        <img src="images/Stefan en Shaurya.jpeg" class="tall" alt="Stefan en Shaurya" onclick="openImage(this)">
+        <img src="images/samuel.jpeg" alt="Samuel" onclick="openImage(this)">
+        <img src="images/optreden.jpg" alt="Optreden" onclick="openImage(this)">
+
+        <img src="images/Amir.jpg" alt="Iris" onclick="openImage(this)">
+        <img src="images/die ene guy.JPG" alt="Huub" onclick="openImage(this)">
+        <img src="images/Kaylee.jpeg" class="tall" alt="Achter de schermen" onclick="openImage(this)">
+        <img src="images/Marta.JPG" alt="Podium" onclick="openImage(this)">
+        <img src="images/Romy & Loïs.JPG" class="tall" alt="Stefan en Shaurya" onclick="openImage(this)">
+        <img src="images/Shaurya.JPG" alt="Samuel" onclick="openImage(this)">
+        <img src="images/Stefan.JPG" alt="Optreden" onclick="openImage(this)">
+        <img src="images/unknown.JPG" alt="Samuel" onclick="openImage(this)">
+        <img src="images/Xander.JPG" alt="Optreden" onclick="openImage(this)">
+    </section>
+
+    <div class="popup" id="popup">
+        <span class="close" onclick="closeImage()">✕</span>
+        <img id="popup-img" alt="Foto">
+    </div>
+
+    <footer><p id="footer-tekst">JEL Openstage 3 — Jan van Egmond Lyceum</p></footer>
+    <script src="script.js"></script>
+</body>
+</html>

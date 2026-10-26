@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events – Beheer JOS3</title><link rel="stylesheet" href="beheer.css"><link rel="icon" href="../images/favicon_io/favicon-32x32.png"></head>
+<body><div class="wrap">
+<h1>Events</h1><p class="sub">De events-pagina. Elk event heeft een label (bijv. datum) en een tekst.</p>
+<div class="kaart"><h2>Paginatitel</h2><input type="text" id="titel" placeholder="Volgende events"></div>
+<div class="kaart"><h2>Events</h2><div id="lijst"></div><button id="nieuw">+ Event toevoegen</button></div>
+<div class="balk"><span class="status" id="status"></span><button class="primair" id="opslaan">Opslaan</button></div></div>
+<script src="beheer.js"></script>
+<script>
+bouwNav('events.html');
+let events = [];
+function teken(){
+  document.getElementById('lijst').innerHTML = events.map((e,i)=>`
+   <div class="item"><div class="item-kop"><span class="nr">${i+1}</span><span class="naam">${esc(e.label||'Nieuw event')}</span>
+     <button data-a="up" data-i="${i}" ${i===0?'disabled':''}>↑</button><button data-a="down" data-i="${i}" ${i===events.length-1?'disabled':''}>↓</button><button class="gevaar" data-a="del" data-i="${i}">✕</button></div>
+     <label>Label</label><input type="text" data-i="${i}" data-v="label" value="${esc(e.label)}">
+     <label>Tekst</label><textarea data-i="${i}" data-v="tekst">${esc(e.tekst)}</textarea></div>`).join('') || '<p class="sub">Nog geen events.</p>';
+}
+document.getElementById('lijst').addEventListener('input',e=>{const t=e.target;if(t.dataset.v)events[t.dataset.i][t.dataset.v]=t.value;});
+document.getElementById('lijst').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.i;
+  if(b.dataset.a==='del'&&confirm('Dit event verwijderen?'))events.splice(i,1);
+  if(b.dataset.a==='up')[events[i-1],events[i]]=[events[i],events[i-1]];
+  if(b.dataset.a==='down')[events[i+1],events[i]]=[events[i],events[i+1]];teken();});
+document.getElementById('nieuw').onclick=()=>{events.push({label:'',tekst:''});teken();};
+(async()=>{try{const l=await dbGet('events');events=(Array.isArray(l)?l:Object.values(l||{})).filter(Boolean).map(e=>({label:e.label||'',tekst:e.tekst||''}));
+  document.getElementById('titel').value=(await dbGet('teksten/events_titel'))||'';}catch{zetStatus('Kon events niet laden','fout');}teken();})();
+document.getElementById('opslaan').onclick=async()=>{zetStatus('Opslaan…');
+  try{await dbPut('events',events.filter(e=>e.label.trim()||e.tekst.trim()));await dbPatch('teksten',{events_titel:document.getElementById('titel').value.trim()||null});zetStatus('✓ Opgeslagen','ok');}catch{zetStatus('Opslaan mislukt','fout');}};
+</script></body></html>

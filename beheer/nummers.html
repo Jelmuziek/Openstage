@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nummers – Beheer JOS3</title><link rel="stylesheet" href="beheer.css"><link rel="icon" href="../images/favicon_io/favicon-32x32.png"></head>
+<body><div class="wrap">
+<h1>Nummers &amp; mensen</h1><p class="sub">De setlist: nummer, artiest, wie het speelt, beschrijving en YouTube-link. Maximaal 30 nummers. De volgorde hier is de volgorde op de site.</p>
+<div id="lijst"></div><button id="nieuw">+ Nummer toevoegen</button>
+<div class="balk"><span class="status" id="status"></span><button class="primair" id="opslaan">Opslaan</button></div></div>
+<script src="beheer.js"></script>
+<script>
+bouwNav('nummers.html');
+const MAX=30; let nummers=[];
+const VELDEN=[['naam','Naam nummer','text'],['artiest','Artiest','text'],['gespeeldDoor','Gespeeld door','text'],['beschrijving','Beschrijving','area'],['youtube','YouTube-link','text']];
+function teken(){
+  document.getElementById('lijst').innerHTML = nummers.map((n,i)=>`
+   <div class="item"><div class="item-kop"><span class="nr">${i+1}</span><span class="naam">${esc(n.naam||'Nieuw nummer')}</span>
+     <button data-a="up" data-i="${i}" ${i===0?'disabled':''}>↑</button><button data-a="down" data-i="${i}" ${i===nummers.length-1?'disabled':''}>↓</button><button class="gevaar" data-a="del" data-i="${i}">✕</button></div>
+     <div class="rij"><div><label>Naam nummer</label><input type="text" data-i="${i}" data-v="naam" value="${esc(n.naam)}"></div>
+     <div><label>Artiest</label><input type="text" data-i="${i}" data-v="artiest" value="${esc(n.artiest)}"></div></div>
+     <label>Gespeeld door</label><input type="text" data-i="${i}" data-v="gespeeldDoor" value="${esc(n.gespeeldDoor)}">
+     <label>Beschrijving</label><textarea data-i="${i}" data-v="beschrijving">${esc(n.beschrijving)}</textarea>
+     <label>YouTube-link</label><input type="url" data-i="${i}" data-v="youtube" value="${esc(n.youtube)}"></div>`).join('') || '<p class="sub">Nog geen nummers.</p>';
+  document.getElementById('nieuw').disabled = nummers.length>=MAX;
+}
+const L=document.getElementById('lijst');
+L.addEventListener('input',e=>{const t=e.target;if(t.dataset.v)nummers[t.dataset.i][t.dataset.v]=t.value;});
+L.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.i;
+  if(b.dataset.a==='del'&&confirm('Dit nummer verwijderen? De nummers erna schuiven een plek op.'))nummers.splice(i,1);
+  if(b.dataset.a==='up')[nummers[i-1],nummers[i]]=[nummers[i],nummers[i-1]];
+  if(b.dataset.a==='down')[nummers[i+1],nummers[i]]=[nummers[i],nummers[i+1]];teken();});
+document.getElementById('nieuw').onclick=()=>{nummers.push({naam:'',artiest:'',gespeeldDoor:'',beschrijving:'',youtube:''});teken();};
+(async()=>{try{const l=await dbGet('nummers');nummers=(Array.isArray(l)?l:Object.values(l||{})).filter(Boolean).map(n=>({naam:n.naam||'',artiest:n.artiest||'',gespeeldDoor:n.gespeeldDoor||'',beschrijving:n.beschrijving||'',youtube:n.youtube||''}));}catch{zetStatus('Kon nummers niet laden','fout');}teken();})();
+document.getElementById('opslaan').onclick=async()=>{
+  const lijst=nummers.filter(n=>n.naam.trim()).map((n,i)=>({...n,naam:n.naam.trim(),slot:i+1}));
+  zetStatus('Opslaan…');
+  try{await dbPut('nummers',lijst);
+    // live-status opschonen zodat die niet naar een verwijderd nummer wijst
+    const s=await dbGet()||{}; const upd={};
+    if((s.huidig||0)>lijst.length)upd.huidig=0;
+    if(Array.isArray(s.afgespeeld))upd.afgespeeld=s.afgespeeld.filter(x=>x<=lijst.length);
+    if(Object.keys(upd).length)await dbPatch('',upd);
+    nummers=lijst;teken();zetStatus('✓ Opgeslagen','ok');}catch{zetStatus('Opslaan mislukt','fout');}};
+</script></body></html>

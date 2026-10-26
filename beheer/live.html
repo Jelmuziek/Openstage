@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live modus – Beheer JOS3</title><link rel="stylesheet" href="beheer.css"><link rel="icon" href="../images/favicon_io/favicon-32x32.png"></head>
+<body><div class="wrap">
+<h1>Live modus</h1><p class="sub">Bedien de show tijdens het concert. Wat je hier doet is direct zichtbaar op de setlist.</p>
+<div class="nu"><small>Nu speelt</small><div class="groot" id="nu">—</div>
+  <div class="knoppen"><button id="vorige">← Vorige</button><button id="volgende">Volgende →</button><button id="stop">Niemand</button></div></div>
+<div id="lijst"></div>
+<div class="kaart" style="margin-top:20px"><h2>Concertdatum (countdown)</h2>
+  <input type="datetime-local" id="datum"><div class="knoppen" style="margin-top:10px"><button id="datumOpslaan">Datum opslaan</button><button class="gevaar" id="reset">Alles resetten (nieuwe show)</button></div></div>
+<div class="balk"><span class="status" id="status"></span></div></div>
+<script src="beheer.js"></script>
+<script>
+bouwNav('live.html');
+let S={nummers:[],huidig:0,afgespeeld:[]}, bezig=false;
+function norm(s){s=s||{};return{nummers:(Array.isArray(s.nummers)?s.nummers:Object.values(s.nummers||{})).filter(Boolean),huidig:s.huidig||0,afgespeeld:(Array.isArray(s.afgespeeld)?s.afgespeeld:Object.values(s.afgespeeld||{})).filter(Boolean),datum:s.evenementDatum||''};}
+function teken(){
+  const n=S.nummers;document.getElementById('nu').textContent=S.huidig&&n[S.huidig-1]?`${S.huidig}. ${n[S.huidig-1].naam}`:'—';
+  document.getElementById('vorige').disabled=S.huidig<=1;document.getElementById('volgende').disabled=S.huidig>=n.length;
+  document.getElementById('lijst').innerHTML=n.map((x,i)=>{const nr=i+1,klaar=S.afgespeeld.includes(nr);
+   return `<div class="liverij ${nr===S.huidig?'speelt':''} ${klaar?'klaar':''}"><span class="nr">${nr}</span>
+    <div class="tit"><b>${esc(x.naam)}</b><span>${esc(x.gespeeldDoor||x.artiest||'')}</span></div>
+    <button data-a="klaar" data-nr="${nr}">${klaar?'↺ Niet klaar':'✓ Klaar'}</button><button class="${nr===S.huidig?'':'primair'}" data-a="speel" data-nr="${nr}">${nr===S.huidig?'■ Stop':'▶ Speel nu'}</button></div>`}).join('')||'<p class="sub">Geen nummers. Voeg ze toe bij “Nummers & mensen”.</p>';
+  if(S.datum&&document.activeElement.id!=='datum')document.getElementById('datum').value=S.datum.slice(0,16);
+}
+async function sla(upd){bezig=true;Object.assign(S,upd);teken();zetStatus('Opslaan…');
+  try{await dbPatch('',{huidig:S.huidig,afgespeeld:S.afgespeeld});zetStatus('✓ Live','ok');}catch{zetStatus('Opslaan mislukt — probeer opnieuw','fout');}bezig=false;}
+const mark=(a,nr)=>a.includes(nr)?a:[...a,nr].sort((x,y)=>x-y);
+document.getElementById('lijst').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const nr=+b.dataset.nr;
+  if(b.dataset.a==='klaar')sla({afgespeeld:S.afgespeeld.includes(nr)?S.afgespeeld.filter(x=>x!==nr):mark(S.afgespeeld,nr)});
+  else sla({huidig:S.huidig===nr?0:nr});});
+document.getElementById('volgende').onclick=()=>{const h=S.huidig;sla({afgespeeld:h?mark(S.afgespeeld,h):S.afgespeeld,huidig:Math.min(h+1,S.nummers.length)});};
+document.getElementById('vorige').onclick=()=>sla({huidig:Math.max(S.huidig-1,1),afgespeeld:S.afgespeeld.filter(x=>x<S.huidig-1)});
+document.getElementById('stop').onclick=()=>sla({huidig:0});
+document.getElementById('reset').onclick=()=>{if(confirm('Alle “klaar”-vinkjes wissen en niemand laten spelen?'))sla({huidig:0,afgespeeld:[]});};
+document.getElementById('datumOpslaan').onclick=async()=>{const v=document.getElementById('datum').value;if(!v)return;
+  try{await dbPatch('',{evenementDatum:v+':00'});S.datum=v;zetStatus('✓ Datum opgeslagen','ok');}catch{zetStatus('Opslaan mislukt','fout');}};
+async function laad(){if(bezig)return;try{S=norm(await dbGet());teken();}catch{zetStatus('Geen verbinding','fout');}}
+laad();setInterval(laad,5000);
+</script></body></html>

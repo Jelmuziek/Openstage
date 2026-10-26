@@ -1,0 +1,50 @@
+:root{--paars:rgb(129,1,98);--paars-licht:rgba(129,1,98,.08);--tekst:#222;--rand:#e2e2e6;--bg:#f5f5f7;--groen:#1a8a4a;--rood:#c0392b}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',Arial,sans-serif;background:var(--bg);color:var(--tekst)}
+.bnav{background:#fff;border-bottom:1px solid var(--rand);padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;position:sticky;top:0;z-index:10}
+.bnav .merk{font-weight:700;color:var(--paars);margin-right:10px}
+.bnav a{padding:7px 12px;border-radius:8px;text-decoration:none;color:var(--tekst);font-size:.9rem}
+.bnav a:hover{background:var(--paars-licht)}
+.bnav a.actief{background:var(--paars);color:#fff}
+.bnav .live{margin-left:auto;background:#e8f7ee;color:var(--groen)}
+.wrap{max-width:820px;margin:24px auto;padding:0 16px 120px}
+h1{margin:0 0 4px;font-size:1.5rem}
+.sub{color:#777;margin:0 0 20px;font-size:.92rem}
+.kaart{background:#fff;border:1px solid var(--rand);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.kaart h2{margin:0 0 12px;font-size:1rem;color:var(--paars)}
+label{display:block;font-size:.8rem;font-weight:600;color:#555;margin:12px 0 4px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=url],input[type=password],input[type=datetime-local],textarea{width:100%;padding:9px 11px;border:1px solid var(--rand);border-radius:8px;font:inherit;font-size:.95rem;background:#fff}
+input:focus,textarea:focus{outline:2px solid var(--paars);border-color:transparent}
+textarea{min-height:90px;resize:vertical}
+.rij{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.rij{grid-template-columns:1fr}}
+button{font:inherit;cursor:pointer;border:1px solid var(--rand);background:#fff;border-radius:8px;padding:8px 14px}
+button:hover{background:var(--paars-licht)}
+button.primair{background:var(--paars);color:#fff;border-color:var(--paars);font-weight:600}
+button.primair:hover{opacity:.9}
+button.gevaar{color:var(--rood)}
+.balk{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--rand);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:center}
+.status{font-size:.9rem;color:#777}.status.ok{color:var(--groen)}.status.fout{color:var(--rood)}
+.hint{font-size:.78rem;color:#888;font-weight:400}
+.item{border:1px solid var(--rand);border-radius:10px;padding:12px;margin-bottom:10px;background:#fcfcfd}
+.item-kop{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:600}
+.item-kop .nr{background:var(--paars);color:#fff;border-radius:6px;min-width:26px;text-align:center;padding:2px 6px;font-size:.85rem}
+.item-kop .naam{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.knoppen{display:flex;gap:8px;flex-wrap:wrap}
+/* live */
+.nu{background:linear-gradient(135deg,var(--paars),#b3128a);color:#fff;border-radius:14px;padding:20px;margin-bottom:16px}
+.nu small{opacity:.8;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem}
+.nu .groot{font-size:1.6rem;font-weight:700;margin:4px 0 14px}
+.nu button{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.35)}
+.nu button:hover{background:rgba(255,255,255,.3)}
+.liverij{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--rand);border-radius:10px;margin-bottom:8px;background:#fff}
+.liverij.speelt{border-color:var(--paars);background:var(--paars-licht)}
+.liverij.klaar .tit{color:#999;text-decoration:line-through}
+.liverij .tit{flex:1;min-width:0}.liverij .tit b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.liverij .tit span{font-size:.8rem;color:#888}
+.liverij .nr{width:26px;text-align:center;font-weight:700;color:var(--paars)}
+.dashgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.dashgrid a{display:block;background:#fff;border:1px solid var(--rand);border-radius:12px;padding:16px;text-decoration:none;color:inherit}
+.dashgrid a:hover{border-color:var(--paars);box-shadow:0 2px 10px rgba(129,1,98,.12)}
+.dashgrid b{display:block;margin-bottom:4px;color:var(--paars)}.dashgrid span{font-size:.85rem;color:#777}

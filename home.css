@@ -1,0 +1,299 @@
+/* ============================================ */
+/* HOME.CSS – Alleen voor index.html            */
+/* ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
+
+/* ── Body layout zodat footer altijd onderaan zit ── */
+.home-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.home-body > *:last-child { margin-top: auto; }
+
+/* ── Zorg dat .cta-bottom naar de bodem pusht als pagina kort is ── */
+.cta-bottom { flex: 1 0 auto; }
+
+/* ═══════════════════════════════════════════ */
+/* HERO                                        */
+/* ═══════════════════════════════════════════ */
+
+.home-hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 24px 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-bg-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 30%, rgba(129,1,98,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+}
+
+.hero-eyebrow {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--paars);
+    margin: 0 0 20px;
+}
+
+.hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 7vw, 4.5rem);
+    line-height: 1.05;
+    margin: 0 0 28px;
+    letter-spacing: -1px;
+    color: #1a001a;
+}
+
+.hero-line {
+    display: block;
+}
+
+.hero-line.accent {
+    color: var(--paars);
+}
+
+.hero-sub {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    color: #666;
+    margin: 0 0 36px;
+    letter-spacing: 0.3px;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    display: inline-block;
+    background: var(--paars);
+    color: white;
+    padding: 13px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    transition: var(--transitie);
+}
+
+.btn-primary:hover {
+    background: #e0007a;
+}
+
+.btn-ghost {
+    display: inline-block;
+    color: var(--paars);
+    padding: 13px 26px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    border: 2px solid rgba(129,1,98,0.3);
+    transition: var(--transitie);
+}
+
+.btn-ghost:hover {
+    background: rgba(129,1,98,0.08);
+    border-color: var(--paars);
+}
+
+.hero-scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #999;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.scroll-arrow {
+    width: 18px;
+    height: 18px;
+    border-right: 2px solid #bbb;
+    border-bottom: 2px solid #bbb;
+    transform: rotate(45deg);
+}
+
+
+/* ═══════════════════════════════════════════ */
+/* FEATURE CARDS                               */
+/* ═══════════════════════════════════════════ */
+
+.features-section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 80px 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 12px;
+    padding: 32px 28px;
+    box-shadow: var(--schaduw);
+    border-top: 3px solid var(--paars);
+    transition: var(--transitie);
+}
+
+.feature-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+    display: inline-block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--paars);
+    background: var(--paars-licht);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+}
+
+.feature-card h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin: 0 0 10px;
+    color: #1a001a;
+}
+
+.feature-card p {
+    color: #666;
+    line-height: 1.7;
+    font-size: 0.92rem;
+    margin: 0 0 18px;
+}
+
+.feature-link {
+    color: var(--paars);
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+}
+
+.feature-link:hover { color: #e0007a; }
+
+/* ═══════════════════════════════════════════ */
+/* QUOTE SECTIE                                */
+/* ═══════════════════════════════════════════ */
+
+.quote-section {
+    background: var(--paars);
+    padding: 64px 40px;
+    text-align: center;
+}
+
+.quote-section blockquote {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    color: white;
+    margin: 0 auto 16px;
+    max-width: 700px;
+    line-height: 1.4;
+}
+
+.quote-section cite {
+    color: rgba(255,255,255,0.65);
+    font-style: normal;
+    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════ */
+/* CTA BOTTOM                                  */
+/* ═══════════════════════════════════════════ */
+
+.cta-bottom {
+    text-align: center;
+    padding: 80px 24px;
+}
+
+.cta-bottom h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: #1a001a;
+    margin: 0 0 14px;
+}
+
+.cta-bottom p {
+    color: #666;
+    font-size: 1.05rem;
+    margin: 0 0 30px;
+}
+
+/* ═══════════════════════════════════════════ */
+/* FOOTER STICKY ONDERAAN (alle pagina's)      */
+/* ═══════════════════════════════════════════ */
+
+/* Standaard niet-home pagina's: sticky footer via flex */
+body:not(.home-body) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body:not(.home-body) footer {
+    margin-top: auto !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE                                  */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+    .drum-sticky {
+        grid-template-columns: 1fr;
+    }
+    .drum-text { padding: 0 20px 30px; text-align: center; }
+    .drum-body { max-width: 100%; margin: 0 auto; }
+    .features-section { grid-template-columns: 1fr; gap: 16px; padding: 50px 20px; }
+}
+
+@media (max-width: 600px) {
+    .quote-section { padding: 50px 24px; }
+    .cta-bottom { padding: 60px 24px; }
+}
