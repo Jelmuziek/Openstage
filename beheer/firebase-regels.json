@@ -1,0 +1,24 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "show": {
+      ".read": true,
+      ".write": "auth != null && root.child('beheerders').child(auth.uid).exists()"
+    },
+
+    "fotos": {
+      ".read": true,
+      ".write": "auth != null && root.child('beheerders').child(auth.uid).exists()"
+    },
+
+    "beheerders": {
+      ".read": "auth != null && root.child('beheerders').child(auth.uid).exists()",
+      "$uid": {
+        ".write": "auth != null && (root.child('beheerders').child(auth.uid).exists() || (!root.child('beheerders').exists() && auth.uid === $uid))",
+        ".validate": "newData.hasChildren(['gebruikersnaam']) && newData.child('gebruikersnaam').isString() && newData.child('gebruikersnaam').val().length <= 30"
+      }
+    }
+  }
+}

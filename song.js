@@ -61,7 +61,7 @@ async function laadSong() {
 
         // YouTube
         const ytEl = document.getElementById('song-yt');
-        if (song.youtube) {
+        if (song.youtube && /^https?:\/\//i.test(song.youtube)) {
             ytEl.href = song.youtube;
             ytEl.style.display = 'flex';
         }

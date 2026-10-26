@@ -52,3 +52,12 @@ button.gevaar{color:var(--rood)}
 .linkrij{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
 .linkrij select{padding:6px 10px;border:1px solid var(--rand);border-radius:8px;font:inherit;font-size:.88rem;background:#fff}
 .linkrij input{flex:1;min-width:180px;width:auto;padding:6px 10px;font-size:.88rem}
+
+.bnav .uit{margin-left:8px;font-size:.85rem;padding:6px 10px}
+.bnav .live+.uit{margin-left:8px}
+.inlog{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.inlog-kaart{background:#fff;border:1px solid var(--rand);border-radius:14px;padding:26px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.inlog-kaart h1{font-size:1.25rem;color:var(--paars)}
+.inlog-kaart form button{margin-top:6px}
+.inlog-kaart a{color:var(--paars)}
+.status.fout:empty{display:none}
