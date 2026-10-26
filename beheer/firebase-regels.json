@@ -16,7 +16,7 @@
     "beheerders": {
       ".read": "auth != null && root.child('beheerders').child(auth.uid).exists()",
       "$uid": {
-        ".write": "auth != null && (root.child('beheerders').child(auth.uid).exists() || (!root.child('beheerders').exists() && auth.uid === $uid))",
+        ".write": "auth != null && root.child('beheerders').child(auth.uid).exists()",
         ".validate": "newData.hasChildren(['gebruikersnaam']) && newData.child('gebruikersnaam').isString() && newData.child('gebruikersnaam').val().length <= 30"
       }
     }

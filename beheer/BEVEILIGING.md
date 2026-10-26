@@ -14,9 +14,8 @@ Tot je dit gedaan hebt, werkt het beheer niet (er is dan nog geen inlog) en blij
    Open `beheer/beheer.js` en vervang `PLAK_HIER_JE_FIREBASE_API_KEY` door die sleutel (laat de aanhalingstekens staan).
 3. **Regels plaatsen** — *Build* → *Realtime Database* → tabblad *Rules* → alles vervangen door de inhoud van `beheer/firebase-regels.json` → **Publish**.
    (Kijk eerst even in het tabblad *Data*: staan er naast `show` nog andere onderdelen, dan worden die door deze regels dichtgezet voor publiek. Dat is meestal precies wat je wilt.)
-4. **Direct daarna de eerste beheerder aanmaken** — zet de bestanden op GitHub, open `beheer/index.html`, klik op *Eerste keer? Maak de eerste beheerder aan* en kies gebruikersnaam + wachtwoord.
-   Doe dit meteen na stap 3: zolang er nog geen beheerder is, kan de eerste die dat doet de beheerder worden.
-5. Daarna kun je onder **Beheerders** tot 5 mensen toevoegen, je wachtwoord en je gebruikersnaam wijzigen.
+4. **Eerste beheerder** — dit gaat niet meer via de site (dat was alleen voor de eerste keer). Heb je al een beheerder, dan ben je klaar. Anders: zie "Alle beheerders kwijt" onderaan.
+5. Onder **Beheerders** kun je tot 5 mensen toevoegen, je wachtwoord en je gebruikersnaam wijzigen.
 
 ## Extra (aanbevolen, 2 minuten)
 Google Cloud console → *APIs & Services* → *Credentials* → je Browser key → *Application restrictions: Websites* → voeg je GitHub Pages-adres toe (bijv. `https://jouwnaam.github.io/*`). Dan werkt de sleutel alleen vanaf jouw site.
@@ -26,3 +25,8 @@ Google Cloud console → *APIs & Services* → *Credentials* → je Browser key 
 - Een verwijderde beheerder kan niet meer schrijven, ook niet als hij nog is ingelogd (Firebase controleert bij elke wijziging).
 - Firebase vertraagt en blokkeert zelf herhaald proberen met foute wachtwoorden.
 - Gebruik voor iedereen een eigen wachtwoord van minimaal 10 tekens dat nergens anders gebruikt wordt.
+
+## Alle beheerders kwijt (noodgeval)
+1. Firebase console → *Authentication* → *Users* → *Add user*: e-mail `jouwnaam@beheer.jelopenstage.nl`, kies een wachtwoord. Kopieer daarna de **User UID** van die gebruiker.
+2. *Realtime Database* → *Data* → ga op de root staan (de URL) → plus-icoon → naam = die UID → voeg daaronder een onderdeel `gebruikersnaam` toe met de waarde `jouwnaam`.
+3. Nu kun je gewoon inloggen met `jouwnaam` en je wachtwoord.

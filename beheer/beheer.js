@@ -37,7 +37,7 @@ async function authCall(ep, body) {
 }
 let sessie = null;
 try { sessie = JSON.parse(localStorage.getItem('jel_sessie') || 'null'); } catch {}
-function bewaar(s) { sessie = s; try { s ? localStorage.setItem('jel_sessie', JSON.stringify(s)) : localStorage.removeItem('jel_sessie'); } catch {} }
+function bewaar(s) { sessie = s; werkNavBij(); try { s ? localStorage.setItem('jel_sessie', JSON.stringify(s)) : localStorage.removeItem('jel_sessie'); } catch {} }
 const sessieVan = (j, naam) => ({idToken: j.idToken, refreshToken: j.refreshToken, uid: j.localId, naam, verloopt: Date.now() + (+j.expiresIn) * 1000});
 async function ververs() {
   if (!sessie) return false;
@@ -50,7 +50,16 @@ async function ververs() {
     return true;
   } catch { return false; }
 }
-function uitloggen() { bewaar(null); location.reload(); }
+function uitloggen() {
+  if (!confirm('Weet je zeker dat je wilt uitloggen?\n\nJe kunt daarna niets meer aanpassen tot je opnieuw inlogt.')) return;
+  bewaar(null); location.reload();
+}
+function inloggen() { token().then(() => location.reload()); }
+function werkNavBij() {
+  if (typeof document.getElementById !== 'function') return;
+  const k = document.getElementById('navAuth'); if (!k) return;
+  k.textContent = sessie ? 'Uitloggen' : 'Inloggen'; k.onclick = sessie ? uitloggen : inloggen;
+}
 
 // Account aanmaken (of, als hij al bestaat en het wachtwoord klopt, gewoon inloggen)
 async function maakAccount(naam, ww) {
@@ -71,41 +80,20 @@ async function token() {
 function toonInlog() {
   return new Promise(klaar => {
     const o = document.createElement('div'); o.className = 'inlog';
-    o.innerHTML = `<div class="inlog-kaart"><h1>JEL Openstage Beheer</h1><p class="sub" id="ilSub">Log in om verder te gaan.</p>
+    o.innerHTML = `<div class="inlog-kaart"><h1>JEL Openstage Beheer</h1><p class="sub">Log in om verder te gaan.</p>
       <form id="ilForm"><label>Gebruikersnaam</label><input type="text" id="ilNaam" autocomplete="username" autocapitalize="none" spellcheck="false" required>
       <label>Wachtwoord</label><input type="password" id="ilWw" autocomplete="current-password" required>
-      <div id="ilExtra" hidden><label>Wachtwoord nogmaals</label><input type="password" id="ilWw2" autocomplete="new-password">
-        <p class="hint">Minimaal ${MIN_WW} tekens. Een zin van een paar woorden is sterker dan één lastig woord.</p></div>
-      <p class="status fout" id="ilFout"></p><button class="primair" style="width:100%" id="ilKnop">Inloggen</button></form>
-      <p class="hint" style="text-align:center;margin-top:14px"><a href="#" id="ilWissel">Eerste keer? Maak de eerste beheerder aan</a></p></div>`;
+      <p class="status fout" id="ilFout"></p><button class="primair" style="width:100%" id="ilKnop">Inloggen</button></form></div>`;
     document.body.appendChild(o);
-    const $ = id => o.querySelector('#' + id); let setup = false;
-    $('ilWissel').onclick = e => { e.preventDefault(); setup = !setup;
-      $('ilExtra').hidden = !setup; $('ilKnop').textContent = setup ? 'Eerste beheerder aanmaken' : 'Inloggen';
-      $('ilSub').textContent = setup ? 'Alleen mogelijk als er nog geen beheerder bestaat.' : 'Log in om verder te gaan.';
-      $('ilWissel').textContent = setup ? 'Terug naar inloggen' : 'Eerste keer? Maak de eerste beheerder aan'; $('ilFout').textContent = ''; };
+    const $ = id => o.querySelector('#' + id);
     $('ilForm').onsubmit = async e => {
       e.preventDefault(); const fout = $('ilFout'), knop = $('ilKnop'); fout.textContent = ''; knop.disabled = true;
       try {
         const naam = $('ilNaam').value.trim().toLowerCase(), ww = $('ilWw').value;
-        if (setup) {
-          if (!naamOk(naam)) throw new Error('Gebruikersnaam: 3–30 tekens, alleen letters, cijfers, punt, streepje of underscore.');
-          if (ww.length < MIN_WW) throw new Error(`Wachtwoord moet minimaal ${MIN_WW} tekens zijn.`);
-          if (ww !== $('ilWw2').value) throw new Error('De wachtwoorden zijn niet hetzelfde.');
-          const j = await maakAccount(naam, ww);
-          const r = await fetch(`${DB_ROOT}/beheerders/${j.localId}.json?auth=${j.idToken}`, {method: 'PUT',
-            body: JSON.stringify({gebruikersnaam: naam, toegevoegd: new Date().toISOString()})});
-          if (!r.ok) {
-            const tekst = (await r.text().catch(() => '')).slice(0, 120);
-            throw new Error(`Opslaan van de beheerder mislukt (status ${r.status}${tekst ? ': ' + tekst : ''}). Meestal betekent dit dat de database-regels nog niet gepubliceerd zijn, of dat er al een beheerder bestaat. Account "${naam}" is wel aangemaakt: probeer na het publiceren van de regels gewoon opnieuw met dezelfde gegevens.`);
-          }
-          bewaar(sessieVan(j, naam));
-        } else {
-          const j = await authCall('signInWithPassword', {email: mailVan(naam), password: ww, returnSecureToken: true});
-          const r = await fetch(`${DB_ROOT}/beheerders/${j.localId}.json?auth=${j.idToken}`);
-          if (!r.ok || !(await r.json())) throw new Error('Dit account heeft geen toegang tot het beheer.');
-          bewaar(sessieVan(j, naam));
-        }
+        const j = await authCall('signInWithPassword', {email: mailVan(naam), password: ww, returnSecureToken: true});
+        const r = await fetch(`${DB_ROOT}/beheerders/${j.localId}.json?auth=${j.idToken}`);
+        if (!r.ok || !(await r.json())) throw new Error('Dit account heeft geen toegang tot het beheer.');
+        bewaar(sessieVan(j, naam));
         o.remove(); klaar();
       } catch (err) { fout.textContent = err.message; knop.disabled = false; }
     };
@@ -146,9 +134,14 @@ const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 function bouwNav(huidig) {
   const nav = document.createElement('nav'); nav.className = 'bnav';
   nav.innerHTML = '<span class="merk">JEL Openstage Beheer</span>' +
+    '<button class="burger" id="burger" aria-label="Menu openen" aria-expanded="false">☰</button>' +
+    '<div class="links">' +
     PAGINAS.map(([h, l]) => `<a href="${h}" class="${h === huidig ? 'actief' : ''}${h === 'live.html' ? ' live' : ''}">${l}${h === 'live.html' ? ' ●' : ''}</a>`).join('') +
-    '<button class="uit" onclick="uitloggen()">Uitloggen</button>';
+    '<button class="uit" id="navAuth"></button></div>';
   document.body.prepend(nav);
+  const burger = nav.querySelector('#burger');
+  burger.onclick = () => { const open = nav.classList.toggle('open'); burger.setAttribute('aria-expanded', open); burger.textContent = open ? '✕' : '☰'; };
+  werkNavBij();
 }
 function zetStatus(tekst, soort = '') { const s = document.getElementById('status'); if (s) { s.textContent = tekst; s.className = 'status ' + soort; } }
 
